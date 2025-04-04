@@ -10,7 +10,8 @@ export const middleware = (req:Request, res: Response, next: NextFunction) => {
     //@ts-ignore
     if(decoded.userId){
         //@ts-ignore
-        req.userId = decoded.userId; 
+        req.userId = decoded.userId;
+        next();
     } else {
         res.status(403).json({
             message: "Unauthorized"
