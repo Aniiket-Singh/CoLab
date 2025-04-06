@@ -13,18 +13,22 @@ interface User {
 const users: User[] = []
 
 function authUser(token: string) : string | null {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
 
-    if(typeof decoded == "string"){
+        if(typeof decoded == "string"){
+            return null;
+        }
+    
+    
+        if(!decoded || !(decoded as JwtPayload).userId){
+            return null;
+        }
+    
+        return decoded.userId;
+    } catch (error) {
         return null;
     }
-
-
-    if(!decoded || !(decoded as JwtPayload).userId){
-        return null;
-    }
-
-    return decoded.userId;;
 } 
 
 wss.on('connection', function connection(ws, request){
@@ -43,26 +47,47 @@ wss.on('connection', function connection(ws, request){
         return;
     }
     
+
     users.push({
         userId,
         rooms:[],
         ws
     })
 
-    ws.on('message', function message(data){
-        if(typeof data !== "string")
-            return;
+    console.log("Pushed the following user:");
+    console.log(userId)
 
-        const parsedData = JSON.parse(data);
+    ws.on('message', function message(data: unknown){
+//      this if block always gets true.
+        // if(typeof data !== "string"){
+        //     console.log("datatype is not string")
+        //     return;
+        // }
+
+        // type string is not assignable to RawData
+        // if (typeof data !== 'string') {
+        //     try {
+        //         data = data.toString(); // handles Buffer
+        //     } catch {
+        //         return; // not a string and can't convert? skip
+        //     }
+        // }
+        
+        //doing data as string seems to be enough
+        const parsedData = JSON.parse(data as string);
+        console.log("\nParsed the data")
         
         if (parsedData.type === "join_room") {
+            console.log("\nMessage type is join_room")
             const user = users.find(x => x.ws === ws)
+            console.log("\found the user with given websocket")
             if(!user){
                 console.log('no user available in rooms[] with given ws')
                 return;
             }
             
             user.rooms.push(parsedData.roomId)
+            console.log(`\n Pushed roomId ${parsedData.roomId} for userId: ${user.userId}`)
         }
 
         if (parsedData.type === "leave_room") {
@@ -72,6 +97,7 @@ wss.on('connection', function connection(ws, request){
                 return;
             }
 
+            console.log(`\n Deleting roomId ${parsedData.roomId} for userId: ${user.userId}`)
             user.rooms = user.rooms.filter(x => x === parsedData.roomId)
         }
 
