@@ -1,6 +1,7 @@
 import { WebSocket, WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_SECRET } from "@repo/backend-common/config";
+import { prismaClient } from "@repo/db/client";
 
 const wss = new WebSocketServer({port: 8080});
 
@@ -57,7 +58,7 @@ wss.on('connection', function connection(ws, request){
     console.log("Pushed the following user:");
     console.log(userId)
 
-    ws.on('message', function message(data: unknown){
+    ws.on('message', async function message(data: unknown){
 //      this if block always gets true.
         // if(typeof data !== "string"){
         //     console.log("datatype is not string")
@@ -105,6 +106,8 @@ wss.on('connection', function connection(ws, request){
             const roomId = parsedData.roomId;
             const message = parsedData.message;
             
+
+            console.log(`Stored the data ${roomId}, ${message} and ${userId}`)
             users.forEach(user => {
                 if(user.rooms.includes(roomId)){
                     user.ws.send(JSON.stringify({
@@ -112,6 +115,15 @@ wss.on('connection', function connection(ws, request){
                         message,
                         roomId
                     }))
+                }
+            })
+
+            
+            await prismaClient.chat.create({
+                data:{
+                    roomId,
+                    message,
+                    userId
                 }
             })
         }
