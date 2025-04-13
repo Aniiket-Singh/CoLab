@@ -107,6 +107,14 @@ wss.on('connection', function connection(ws, request){
             const message = parsedData.message;
             
 
+            await prismaClient.chat.create({
+                data:{
+                    roomId,
+                    message,
+                    userId
+                }
+            })
+
             console.log(`Stored the data ${roomId}, ${message} and ${userId}`)
             users.forEach(user => {
                 if(user.rooms.includes(roomId)){
@@ -119,13 +127,7 @@ wss.on('connection', function connection(ws, request){
             })
 
             
-            await prismaClient.chat.create({
-                data:{
-                    roomId,
-                    message,
-                    userId
-                }
-            })
+            
         }
     })
 })
