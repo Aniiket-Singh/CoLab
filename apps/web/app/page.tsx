@@ -8,12 +8,14 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className={styles.page}>
-      <input value = {roomId} onChange={(e) => {
-        setRoomId(e.target.value)
-      }} type = "text" placeholder="Room id"></input>
+    <div className="flex w-screen h-screen justify-center items-center">
+      <div className=" bg-gray-500">
+        <input className="p-10" value = {roomId} onChange={(e) => {
+          setRoomId(e.target.value)
+        }} type = "text" placeholder="Room id"></input>
 
-      <button onClick={()=>{router.push(`/room/${roomId}`)}}>Join Room</button>
+        <button className="p-10" onClick={()=>{router.push(`/room/${roomId}`)}}>Join Room</button>
+      </div>
     </div>
   );
 }
