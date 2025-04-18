@@ -14,7 +14,9 @@ export function ChatRoomClient ({messages,id}: RenderProps){
     const {socket, loading} = useSocket();
 
     useEffect(()=>{
-        if(socket && !loading){
+        // if(socket && !loading){
+        if(socket && socket.readyState === WebSocket.OPEN){
+            console.log("Sending join_room...");
             socket.send(JSON.stringify({
                 type: "join_room",
                 roomId:id
@@ -32,9 +34,9 @@ export function ChatRoomClient ({messages,id}: RenderProps){
     return <div>
         {chats?.map(m=> <div>{m.message}</div>)}
 
-        <input type="text" value = {currentMessage} onChange = {e => {setCurrentMessage(e.target.value)}}></input>
+        <input className="border-2 h-10" type="text" value = {currentMessage} onChange = {e => {setCurrentMessage(e.target.value)}}></input>
 
-        <button onClick={() => {
+        <button className="border-2 ml-5 p-2" onClick={() => {
             socket?.send(JSON.stringify({
                 type: "chat",
                 roomId: id,
