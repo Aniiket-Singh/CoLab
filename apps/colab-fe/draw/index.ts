@@ -19,6 +19,8 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
 
     let existingShapes: Shape[] = await getExistingShapes(roomId);
 
+    console.log(existingShapes)
+
     if(!ctx) {
         return;  
     }
@@ -27,14 +29,12 @@ export async function initDraw(canvas: HTMLCanvasElement, roomId: string, socket
         const message = JSON.parse(event.data);
         if(message.type == "chat"){
             const parsedShape = JSON.parse(message.message)
-            existingShapes.push(parsedShape)
+            existingShapes.push(parsedShape )
             ClearCanvas(existingShapes, canvas, ctx);
         }
     }
-    
-    ctx.fillStyle = "rgba(0, 0, 0)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    
+
+    ClearCanvas(existingShapes, canvas, ctx);    
     let clicked = false;
     let startX = 0;
     let startY = 0;
