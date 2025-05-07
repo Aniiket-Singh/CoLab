@@ -17,6 +17,10 @@ export function RoomCanvas ( {roomId}: {roomId:string}) {
                 roomId: Number(roomId)
             }))
         }
+
+        return ()=>{
+            ws.close()
+        }
     }, [])
 
     if(!socket){
